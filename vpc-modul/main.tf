@@ -109,7 +109,7 @@ resource "aws_route_table_association" "private" {
 }
 
 data "aws_eip" "NAT-Gateway-EIP" {
- 
+  allocation_id = " "
 }
 
 resource "aws_nat_gateway" "NAT-Gateway" {
@@ -192,4 +192,18 @@ data "aws_network_acls" "NACL-default" {
   tags = {
     Name = "${var.service_name}-NACL-default"
   }
+}
+
+resource "aws_vpc_dhcp_options" "dhcp" {
+  enable_dhcp_options              = true
+  domain_name         = "service.consul"
+  domain_name_servers = ["127.0.0.1", "10.10.0.2"]
+
+  tags = {
+    Name = "${var.service_name}-dhcp"
+  }
+}
+resource "aws_vpc_dhcp_options_association" "dhcp-association" {
+  vpc_id          = aws_vpc.main.id
+  dhcp_options_id = aws_vpc_dhcp_options.dhcp.id
 }
